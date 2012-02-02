@@ -56,6 +56,7 @@ module Spree::Preferences
       return unless should_persist?
 
       Spree::Preference.all.each do |p|
+         next if p.key.nil?
          @cache.write(p.key, p.value)
       end
     end
