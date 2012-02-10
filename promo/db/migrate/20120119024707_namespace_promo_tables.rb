@@ -1,3 +1,5 @@
+require 'spree/core/preference_rescue'
+
 class NamespacePromoTables < ActiveRecord::Migration
 
   def concat(str1, str2)
@@ -29,12 +31,6 @@ class NamespacePromoTables < ActiveRecord::Migration
     end
   end
 
-  class OldPrefs < ActiveRecord::Base
-    set_table_name "spree_preferences"
-    belongs_to  :owner, :polymorphic => true
-    attr_accessor :owner_klass
-  end
-
   def self.up
     # namespace promo tables
     rename_table :promotion_actions, :spree_promotion_actions
@@ -52,28 +48,20 @@ class NamespacePromoTables < ActiveRecord::Migration
     add_column :spree_activators, :code, :string
     add_column :spree_activators, :advertise, :boolean, :default => false
 
+    Spree::Activator.reset_column_information
+
     Spree::Preference.where(:owner_type => 'Spree::Activator').each do |preference|
-      preference.value_type = case preference.name
-                              when 'usage_limit'
-                                :integer
-                              when 'advertise'
-                                :boolean
-                              else
-                                :string
-                              end
+      unless Spree::Activator.exists? preference.owner_id
+        preference.destroy
+        next
+      end
+
       @activator = Spree::Activator.find(preference.owner_id)
-      @activator.update_attribute(preference.name, preference.value)
+      @activator.update_attribute(preference.name, preference.raw_value)
       preference.destroy
     end
 
-    OldPrefs.where(:owner_type => 'Spree::PromotionRule').each do |old_pref|
-      owner = old_pref.owner
-      old_pref.key = [owner.class.name, old_pref.name, owner.id].join('::').underscore
-      old_pref.value_type = owner.preference_type(old_pref.name)
-      say "Migrating Preference: #{old_pref.key}"
-      old_pref.save(:validate => false)
-    end
-
+    Spree::PreferenceRescue.try
 
     # This *should* be in the new_preferences migration inside of Core but...
     # This is migration needs to have these keys around so that
