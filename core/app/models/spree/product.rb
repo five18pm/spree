@@ -78,8 +78,7 @@ module Spree
     end
 
     def to_param
-      return permalink if permalink.present?
-      name.to_url
+      permalink.present? ? permalink : (permalink_was || name.to_s.to_url)
     end
 
     # returns true if the product has any variants (the master variant is not a member of the variants array)
@@ -140,10 +139,11 @@ module Spree
       image_dup = lambda { |i| j = i.dup; j.attachment = i.attachment.clone; j }
       p.images = self.images.map { |i| image_dup.call i }
 
-      variant = self.master.dup
-      variant.sku = 'COPY OF ' + self.master.sku
+      master = Spree::Variant.find_by_product_id_and_is_master(self.id, true)
+      variant = master.dup
+      variant.sku = 'COPY OF ' + master.sku
       variant.deleted_at = nil
-      variant.images = self.master.images.map { |i| image_dup.call i }
+      variant.images = master.images.map { |i| image_dup.call i }
       p.master = variant
 
       if self.has_variants?
@@ -182,6 +182,12 @@ module Spree
     def self.like_any(fields, values)
       where_str = fields.map { |field| Array.new(values.size, "#{self.quoted_table_name}.#{field} #{LIKE} ?").join(' OR ') }.join(' OR ')
       self.where([where_str, values.map { |value| "%#{value}%" } * fields.size].flatten)
+    end
+
+    def empty_option_values?
+      options.empty? || options.any? do |opt|
+        opt.option_type.option_values.empty?
+      end
     end
 
     private

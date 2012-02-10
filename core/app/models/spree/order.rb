@@ -56,7 +56,7 @@ module Spree
       self.update_hooks.add(hook)
     end
 
-    # For compatiblity with Calculator::PriceBucket
+    # For compatiblity with Calculator::PriceSack
     def amount
       line_items.map(&:amount).sum
     end
@@ -126,6 +126,10 @@ module Spree
             false
           end
         end
+      end
+
+      before_transition :to => ['delivery'] do |order|
+        order.shipments.each { |s| s.destroy unless s.shipping_method.available_to_order?(order) }
       end
 
       after_transition :to => 'complete', :do => :finalize!

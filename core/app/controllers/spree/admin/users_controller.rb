@@ -1,6 +1,8 @@
 module Spree
   module Admin
     class UsersController < ResourceController
+      rescue_from User::DestroyWithOrdersError, :with => :user_destroy_with_orders_error
+
       # http://spreecommerce.com/blog/2010/11/02/json-hijacking-vulnerability/
       before_filter :check_json_authenticity, :only => :index
       before_filter :load_roles, :only => [:edit, :new, :update, :create]
@@ -13,6 +15,13 @@ module Spree
         respond_with(@collection) do |format|
           format.html
           format.json { render :json => json_data }
+        end
+      end
+
+      def dismiss_banner
+        if request.xhr? and params[:banner_id]
+          current_user.dismiss_banner(params[:banner_id])
+          render :nothing => true
         end
       end
 
@@ -48,6 +57,13 @@ module Spree
         end
 
       private
+
+        # handling raise from Admin::ResourceController#destroy
+        def user_destroy_with_orders_error
+          invoke_callbacks(:destroy, :fails)
+          render :status => :forbidden, :text => t(:error_user_destroy_with_orders)
+        end
+
         # Allow different formats of json data to suit different ajax calls
         def json_data
           json_format = params[:json_format] or 'default'
