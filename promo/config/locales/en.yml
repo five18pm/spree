@@ -84,3 +84,5 @@ en:
     path: Path
   promotion_action: Promotion Action
   promotion_rule: Promotion Rule
+  i_have_a_signup_coupon: I have a sign-up coupon
+  signup_promo_code: Coupon code

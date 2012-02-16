@@ -1,0 +1,10 @@
+<div id="signup_promo">
+  <input type="checkbox" id="promo_code_present" onclick="$('#promo_code_div').toggle();"/>
+  &nbsp;
+  <label for="promo_code_present"><%= I18n.t(:i_have_a_signup_coupon) %></label>
+
+  <div id="promo_code_div" style="display: none">
+    <%= f.label :signup_promo_code, t(:signup_promo_code) %><br />
+    <%= f.text_field :signup_promo_code, :class => 'title' %>
+  </div>
+</div>
