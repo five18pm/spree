@@ -62,6 +62,7 @@ module Spree
     preference :site_name, :string, :default => 'Spree Demo Site'
     preference :site_url, :string, :default => 'demo.spreecommerce.com'
     preference :tax_using_ship_address, :boolean, :default => true
+    preference :total_similar_products, :integer, :default => 4
     preference :track_inventory_levels, :boolean, :default => true # will not track on_hand values for variants /products
 
     # searcher_class allows spree extension writers to provide their own Search class
