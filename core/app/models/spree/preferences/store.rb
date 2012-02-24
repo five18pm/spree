@@ -41,7 +41,7 @@ module Spree::Preferences
       return unless should_persist?
 
       preference = Spree::Preference.find_or_initialize_by_key(cache_key)
-      preference.value = value
+      preference.value = value.to_s
       preference.value_type = type
       preference.save
     end
@@ -58,7 +58,6 @@ module Spree::Preferences
 
       Spree::Preference.valid.each do |p|
         Spree::Preference.convert_old_value_types(p) # see comment
-        next if p.key.nil?
         @cache.write(p.key, p.value)
       end
     end
