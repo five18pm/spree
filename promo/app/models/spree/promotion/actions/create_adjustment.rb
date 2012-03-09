@@ -19,10 +19,10 @@ module Spree
     # override of CalculatedAdjustments#create_adjustment so promotional
     # adjustments are added all the time. They will get their eligability
     # set to false if the amount is 0
-    def create_adjustment(label, target, calculable, mandatory=false)
+    def create_adjustment(label, target, calculable, mandatory=false, source=calculable)
       amount = compute_amount(calculable)
       target.adjustments.create(:amount => amount,
-                                :source => calculable,
+                                :source => source,
                                 :originator => self,
                                 :label => label,
                                 :mandatory => mandatory)

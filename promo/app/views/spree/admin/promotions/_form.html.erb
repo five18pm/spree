@@ -11,11 +11,6 @@
     <%= f.select :event_name, Spree::Activator.event_names.map{|name| [t("events.#{name}"), name] } %>
   <% end %>
 
-  <%= f.field_container :code do %>
-    <%= f.label :code, t(:code) %><br />
-    <%= f.text_field :code %>
-  <% end %>
-
   <%= f.field_container :path do %>
     <%= f.label :path, t(:path) %><br />
     <%= f.text_field :path %>

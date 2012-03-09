@@ -13,7 +13,6 @@
   <thead>
     <tr>
       <th><%= t(:name) %></th>
-      <th><%= t(:code) %></th>
       <th><%= t(:description) %></th>
       <th><%= t(:usage_limit) %></th>
       <th><%= t(:expiration) %></th>
@@ -24,7 +23,6 @@
     <% @promotions.each do |promotion| %>
       <tr id="<%= dom_id promotion %>">
         <td><%= promotion.name %></td>
-        <td><%= promotion.code %></td>
         <td><%= promotion.description %></td>
         <td><%= promotion.usage_limit %></td>
         <td><%= promotion.expires_at.to_date.to_s(:short_date) if promotion.expires_at %></td>

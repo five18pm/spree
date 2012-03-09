@@ -3,7 +3,6 @@ module Spree
     MATCH_POLICIES = %w(all any)
     UNACTIVATABLE_ORDER_STATES = ["complete", "awaiting_return", "returned"]
 
-    Activator.event_names << 'spree.checkout.coupon_code_added'
     Activator.event_names << 'spree.content.visited'
 
     has_many :promotion_rules, :foreign_key => 'activator_id', :autosave => true, :dependent => :destroy
@@ -13,6 +12,7 @@ module Spree
     has_many :promotion_actions, :foreign_key => 'activator_id', :autosave => true, :dependent => :destroy
     alias_method :actions, :promotion_actions
     accepts_nested_attributes_for :promotion_actions
+    has_many :coupon_codes, :foreign_key => 'activator_id', :autosave => true, :dependent => :destroy
 
     # TODO: This shouldn't be necessary with :autosave option but nested attribute updating of actions is broken without it
     after_save :save_rules_and_actions
@@ -21,7 +21,6 @@ module Spree
     end
 
     validates :name, :presence => true
-    validates :code, :presence => true, :if => lambda{|r| r.event_name == 'spree.checkout.coupon_code_added' }
     validates :path, :presence => true, :if => lambda{|r| r.event_name == 'spree.content.visited' }
     validates :usage_limit, :numericality => { :greater_than => 0, :allow_nil => true }
 
@@ -41,11 +40,6 @@ module Spree
 
     def activate(payload)
       return unless order_activatable? payload[:order]
-
-      if code.present?
-        event_code = payload[:coupon_code].to_s.strip.downcase
-        return unless event_code == self.code.to_s.strip.downcase
-      end
 
       if path.present?
         return unless path == payload[:path]
