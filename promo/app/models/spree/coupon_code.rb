@@ -6,7 +6,7 @@ module Spree
     scope :by_number, lambda { |number| where(:number => number) }
 
     def used_count
-      adjustments.nil? ? 0 : adjustments.size
+      adjustments.nil? ? 0 : adjustments.select{|a| a.adjustable.state == 'complete'}.size
     end
 
     def used_up?
