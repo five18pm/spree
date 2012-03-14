@@ -20,4 +20,9 @@
     <%= f.text_area :description %>
   <% end %>
 
+  <%= f.field_container :meta_description do %>
+    <%= f.label :meta_description, t(:meta_description) %><br />
+    <%= f.text_field :meta_description %>
+  <% end %>
+
 </div>
